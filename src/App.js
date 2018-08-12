@@ -56,9 +56,22 @@ class App extends Component {
     clearInterval(this.interval);
   }
 
-  handleGroupClick(group) {
+  async handleGroupClick(event, group) {
+    event.preventDefault();
     console.log(group);
-    fetch
+    const res = await fetch('./command', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        command: {
+          programName: group.name
+        },
+        ids: _.map(group.pixelblazes, 'id')
+      })
+    });
   }
 
   render() {
@@ -80,7 +93,7 @@ class App extends Component {
               <h1 className="display-6">Here's what I found</h1>
               <div className="list-group">
                 {this.state.groups.map(g =>
-                    <a key={g.name} href="#" className="list-group-item" onClick={() => this.handleGroupClick(g)}>
+                    <a key={g.name} href="#" className="list-group-item" onClick={(e) => this.handleGroupClick(e,g)}>
                       <h2>{g.name}</h2>
                       <small>{_.map(g.pixelblazes, 'name').join(', ')}</small>
                     </a>

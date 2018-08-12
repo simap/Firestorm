@@ -86,7 +86,7 @@ module.exports = class PixelblazeController {
 
   handleMessage(msg) {
     this.lastSeen = new Date().getTime();
-    console.log("data from " + this.props.id + " at " + this.props.address, typeof msg, msg);
+    // console.log("data from " + this.props.id + " at " + this.props.address, typeof msg, msg);
 
     let props = this.props;
     if (typeof msg === "string") {
@@ -124,7 +124,7 @@ module.exports = class PixelblazeController {
           this.partialList = this.partialList.concat(programs);
           if (flags & PacketFrameFlags.END) {
             props.programList = this.partialList;
-            console.log("received programs", props.id, props.programList);
+            // console.log("received programs", props.id, props.programList);
           }
           break;
       }
