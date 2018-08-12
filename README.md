@@ -16,6 +16,50 @@ yarn server
 
 This installs the dependencies, compiles the react app portion, then serves the whole thing.
 
+Installing on Raspberry Pi
+=========
+
+This can take some time, and might not be the most optimal path (if you have something better please let me know, prefferably with a PR)
+
+```
+#first get node, yarn, npm going
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+sudo apt-get update
+sudo apt-get install nodejs npm yarn authbind
+
+#npm seems to be out of date initially
+sudo npm install -g npm
+
+sudo npm install -g pm2
+
+#authbind lets us bind to port 80 as non-root
+sudo touch /etc/authbind/byport/80
+sudo chown pi /etc/authbind/byport/80
+sudo chmod 755 /etc/authbind/byport/80
+
+alias pm2='authbind --deep pm2'
+
+#run pm2 on boot
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u pi --hp /home/pi
+
+#now get Firestorm 
+cd ~
+git clone https://github.com/simap/Firestorm.git
+cd Firestorm
+
+yarn
+yarn build
+
+#I believe the pm2 alias with authbind is critical here
+#alternatively `authbind --deep pm2 start server.js` might work
+pm2 start server.js 
+pm2 save
+
+```
+
+
 Beacon and Time Sync Server
 =========
 Pixelblaze v2.10 and above send out broadcast UDP packets that are used for discovery, and accept reply packets for time synchronization. The server participates in a time sync algorithm similar to NTP, allowing any number of Pixelblazes to have sychronized animations.
