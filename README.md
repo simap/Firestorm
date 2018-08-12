@@ -11,7 +11,7 @@ Installation
 ```
 yarn
 yarn build
-yarn start
+yarn server
 ```
 
 This installs the dependencies, compiles the react app portion, then serves the whole thing.
