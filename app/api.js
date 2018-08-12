@@ -24,9 +24,4 @@ module.exports = function (app) {
       res.status(400).send("missing ids or command");
     }
   })
-
-  app.get("/hi", function (req, res) {
-    res.send("hi")
-  })
-
 }

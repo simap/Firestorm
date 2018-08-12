@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
 import _ from 'lodash';
-import PixelblazeContainer from "./PixelblazeContainer";
 
 class App extends Component {
   constructor(props) {
