@@ -24,4 +24,22 @@ module.exports = function (app) {
       res.status(400).send("missing ids or command");
     }
   })
+
+
+  app.get("/command", function (req, res) {
+    if (req.query.command && req.query.ids) {
+      let command = JSON.parse(req.query.command);
+      let ids = req.query.ids.split(',');
+      _.each(ids, id => {
+        let controller = discoveries[id] && discoveries[id].controller;
+        if (controller) {
+          controller.setCommand(command);
+        }
+      })
+      res.send("ok");
+    } else {
+      res.status(400).send("missing ids or command");
+    }
+  })
+
 }
