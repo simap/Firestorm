@@ -12,6 +12,9 @@ Installation
 yarn
 yarn build
 yarn server
+
+# or to run on a different port, in case you get access denied for port 80:
+PORT=3000 yarn server
 ```
 
 This installs the dependencies, compiles the react app portion, then serves the whole thing.
