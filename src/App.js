@@ -2,15 +2,23 @@ import React, {Component} from 'react';
 import './App.css';
 import _ from 'lodash';
 
+import PatternView from './PatternView'
+
+const SEQUENCE_SHUFFLE_MS = 15000  // TODO: Make this user-controllable
+
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       discoveries: [],
-      groups: []
+      groups: [],
+      runningPatternName: null,
+      patternNameSequence: [],
+      patternSequenceIndex: 0
     }
     this.poll = this.poll.bind(this);
-    this.handleGroupClick = this.handleGroupClick.bind(this);
+
+    this._sequenceInterval = null
   }
 
   async poll() {
@@ -53,24 +61,87 @@ class App extends Component {
   componentWillUnmount() {
     this.unmounting = true;
     clearInterval(this.interval);
+    clearInterval(this._sequenceInterval)
   }
 
-  async handleGroupClick(event, group) {
-    event.preventDefault();
-    console.log(group);
-    const res = await fetch('./command', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        command: {
-          programName: group.name
-        },
-        ids: _.map(group.pixelblazes, 'id')
+  async _launchPattern(pattern) {
+    if (this.state.runningPatternName === pattern.name) {
+      console.warn(`pattern ${pattern.name} is already running, ignoring launch request`)
+      return
+    }
+    console.log('launching pattern', pattern)
+    return new Promise((resolve) => {
+      this.setState({ runningPatternName: pattern.name }, () => {
+        const payload = {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            command: {
+              programName: pattern.name
+            },
+            ids: _.map(pattern.pixelblazes, 'id')
+          })
+        }
+        resolve(fetch('./command', payload))
       })
-    });
+    })
+  }
+
+  _handlePatternClick = async (event, pattern) => {
+    event.preventDefault()
+    await this._startNewSequence(pattern)
+  }
+
+  _handleAddClick = async (event, pattern) => {
+    event.preventDefault()
+    const { patternNameSequence } = this.state
+    if (patternNameSequence.indexOf(pattern.name) === -1) {
+      if (!patternNameSequence.length) {
+        this._startNewSequence(pattern)
+      } else {
+        console.log(`adding pattern ${pattern.name} to sequence`)
+        const newPatternNameSequence = patternNameSequence.slice()
+        newPatternNameSequence.push(pattern.name)
+        this.setState({ patternNameSequence: newPatternNameSequence })
+      }
+    } else {
+      console.warn('pattern already in sequence, ignoring')
+    }
+  }
+
+  async _startNewSequence(startingPattern) {
+    clearInterval(this._sequenceInterval)
+    this.setState({
+      patternNameSequence: [startingPattern.name],
+      patternSequenceIndex: 0
+    }, () => {
+      this._launchPatternAndSetTimeout()
+    })
+  }
+
+  async _launchPatternAndSetTimeout() {
+    await this._launchCurrentPattern()
+    this._sequenceInterval = setTimeout(() => {
+      const { patternNameSequence, patternSequenceIndex } = this.state
+      const nextIndex = (patternSequenceIndex + 1) % patternNameSequence.length
+      this.setState({ patternSequenceIndex: nextIndex }, () => this._launchPatternAndSetTimeout())
+    }, SEQUENCE_SHUFFLE_MS)
+  }
+
+  async _launchCurrentPattern() {
+    const { patternNameSequence, patternSequenceIndex } = this.state
+    const currentPatternName = patternNameSequence[patternSequenceIndex]
+    const currentPattern = this.state.groups.find((pattern) => {
+      return pattern.name === currentPatternName
+    })
+    if (currentPattern) {
+      await this._launchPattern(currentPattern)
+    } else {
+      console.warn(`pattern with name ${currentPatternName} not found`)
+    }
   }
 
   render() {
@@ -107,14 +178,26 @@ class App extends Component {
 
             <h3>Patterns</h3>
             <div className="list-group">
-              {this.state.groups.map(g =>
-                  <a key={g.name} href="#" className="list-group-item" onClick={(e) => this.handleGroupClick(e, g)}>
-                    <h5>{g.name}</h5>
-                    <em>
-                      <small>{_.map(g.pixelblazes, 'name').join(', ')}</small>
-                    </em>
-                  </a>
-              )}
+              {this.state.groups.map((pattern) => {
+                const getStatus = () => {
+                  if (pattern.name === this.state.runningPatternName) {
+                    return 'running'
+                  } else if (this.state.patternNameSequence.indexOf(pattern.name) !== -1) {
+                    return 'sequenced'
+                  } else {
+                    return 'available'
+                  }
+                }
+
+                return (
+                  <PatternView
+                    pattern={pattern}
+                    handlePatternClick={this._handlePatternClick}
+                    handleAddClick={this._handleAddClick}
+                    status={getStatus()}
+                  />
+                )
+              })}
             </div>
 
           </main>

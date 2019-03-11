@@ -70,7 +70,7 @@ Pixelblaze v2.10 and above send out broadcast UDP packets that are used for disc
 
 Firestorm UI
 =========
-The UI will show all unique pattern names on the network, and selecting a name will activate it on all Pixelblazes that have that pattern name.
+The UI will show all unique pattern names on the network, and selecting a name will launch it on all Pixelblazes that have that pattern name. Launching a pattern will create a new client-driven sequence containing that single pattern. A pattern can be added to the current sequence by clicking the Add button to the right of its name. Once added, an icon will appear to the right of a pattern indicating whether it is the currently running pattern or part of the current sequence. To clear the current sequence, click a pattern name (which will create a new sequence that does not change unless additional patterns are added).
 
 Firestorm API
 =========
