@@ -1,5 +1,7 @@
 const WebSocket = require('ws');
 const _ = require('lodash');
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 
 const PacketType = {
   SAVEPROGRAMSOURCEFILE: 1,
@@ -161,6 +163,40 @@ module.exports = class PixelblazeController {
       return;
     _.assign(this.command, command);
     this.sendFrame(this.command);
+  }
+
+  reloadConfig() {
+    this.sendFrame({getConfig: true});
+  }
+
+  async getPatternBinary(patternId) {
+    var resp = await fetch('http://' + this.props.address + "/p/" + patternId, {
+      responseType: 'blob',
+    });
+    return await resp.body;
+  }
+
+  async putPatternBinary(patternId, binary) {
+    const form = new FormData();
+    form.append('data', binary, {
+      filepath: '/p/' + patternId,
+      contentType: 'application/octet-stream',
+    });
+
+    var url = 'http://' + this.props.address + "/edit"
+    return new Promise((resolve, reject) => {
+      form.submit(url, function (err, res) {
+        if (err)
+          reject(err);
+        else
+          resolve(res);
+      });
+    })
+  }
+
+  async deletePattern(patternId) {
+    var resp = await fetch('http://' + this.props.address + "/delete?path=/p/" + patternId);
+    return await resp;
   }
 
   sendFrame(o) {
