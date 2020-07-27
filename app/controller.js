@@ -169,17 +169,17 @@ module.exports = class PixelblazeController {
     this.sendFrame({getConfig: true});
   }
 
-  async getPatternBinary(patternId) {
-    var resp = await fetch('http://' + this.props.address + "/p/" + patternId, {
+  async getProgramBinary(programId) {
+    var resp = await fetch('http://' + this.props.address + "/p/" + programId, {
       responseType: 'blob',
     });
     return await resp.body;
   }
 
-  async putPatternBinary(patternId, binary) {
+  async putProgramBinary(programId, binary) {
     const form = new FormData();
     form.append('data', binary, {
-      filepath: '/p/' + patternId,
+      filepath: '/p/' + programId,
       contentType: 'application/octet-stream',
     });
 
@@ -194,8 +194,8 @@ module.exports = class PixelblazeController {
     })
   }
 
-  async deletePattern(patternId) {
-    var resp = await fetch('http://' + this.props.address + "/delete?path=/p/" + patternId);
+  async deleteProgram(programId) {
+    var resp = await fetch('http://' + this.props.address + "/delete?path=/p/" + programId);
     return await resp;
   }
 
