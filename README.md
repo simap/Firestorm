@@ -76,7 +76,7 @@ Firestorm API
 =========
 The API is pretty simple at this point. 
 
-## /discover
+## /discover (GET)
 
 Returns a list of all known Pixelblaze controllers along with their pattern list and current settings.
 
@@ -110,7 +110,7 @@ e.g.
 ]
 ```
 
-## /command
+## /command (POST)
 
 Sets a stickly command state for the given Pixelblaze IDs.
 `programName` is a bit special as it will convert to whatever ID has that name on the local Pixelblaze. This makes it easy to create different patterns, then name them similarly in order to create control groups.
@@ -130,3 +130,32 @@ If a Pixelblaze is unavailable or drops off the network temporarily, the setting
   ]
 }
 ```
+
+## /command (GET)
+
+This is much like above, but implemented in a GET request for compatibility with systems that have a hard time issuing HTTP POSTs.
+
+The command JSON should be URL encoded, and the ids are comma separated.
+
+```
+/command?command=%7B%22programName%22%3A+%22blink+fade%22%7D&ids=6909667,9398311
+```
+
+## /reload (POST)
+
+Triggers reloading config and patterns from all controllers. No body is required.
+
+
+## /clonePrograms (POST)
+
+Clone all programs from one controller to another. Programs that are on the destinations that don't exist on the source will be deleted so that they match exactly.
+
+```
+{
+  "from": 6909667,
+  "to": [9398311,38473234]
+}
+
+```
+
+
