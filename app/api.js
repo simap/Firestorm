@@ -14,6 +14,7 @@ module.exports = function (app) {
   app.post("/command", function (req, res) {
     if (req.body && req.body.ids && req.body.command) {
       _.each(req.body.ids, id => {
+        id = String(id);
         let controller = discoveries[id] && discoveries[id].controller;
         if (controller) {
           controller.setCommand(req.body.command);
