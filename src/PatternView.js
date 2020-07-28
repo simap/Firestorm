@@ -8,21 +8,21 @@ class PatternView extends Component {
 
     const renderStatusElement = () => {
       if (status === 'running') {
-        return <i class="fas fa-play" title="Running now"></i>
+        return <i className="fas fa-play" title="Running now"></i>
       }
       if (status === 'sequenced') {
-        return <i class="fas fa-clock" title="In current sequence"></i>
+        return <i className="fas fa-clock" title="In current sequence"></i>
       }
       return (
         <a href="#" onClick={this._handleAddClick}>
-          <i class="fas fa-plus" title="Add to sequence"></i>
+          <i className="fas fa-plus" title="Add to sequence"></i>
         </a>
       )
     }
 
     return (
-      <div class="row">
-        <div class="col">
+      <div className="row">
+        <div className="col">
           <a
             key={pattern.name}
             href="#"
@@ -35,7 +35,7 @@ class PatternView extends Component {
             </em>
           </a>
         </div>
-        <div class="col-1">
+        <div className="col-1">
           {renderStatusElement()}
         </div>
       </div>
