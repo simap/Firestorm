@@ -29,15 +29,19 @@ module.exports = function (app) {
 
   app.get("/command", function (req, res) {
     if (req.query.command && req.query.ids) {
-      let command = JSON.parse(req.query.command);
-      let ids = req.query.ids.split(',');
-      _.each(ids, id => {
-        let controller = discoveries[id] && discoveries[id].controller;
-        if (controller) {
-          controller.setCommand(command);
-        }
-      })
-      res.send("ok");
+      try {
+        let command = JSON.parse(req.query.command);
+        let ids = req.query.ids.split(',');
+        _.each(ids, id => {
+          let controller = discoveries[id] && discoveries[id].controller;
+          if (controller) {
+            controller.setCommand(command);
+          }
+        })
+        res.send("ok");
+      } catch (err) {
+        res.status(400).send("unable to parse json:" + req.query.command);
+      }
     } else {
       res.status(400).send("missing ids or command");
     }

@@ -147,7 +147,7 @@ module.exports = class PixelblazeController {
   }
 
   setCommand(command) {
-    let {programName, rest} = command;
+    let {programName, ...rest} = command;
     if (programName) {
       rest = rest || {};
       let program = _.find(this.props.programList, {name: programName});
@@ -162,7 +162,7 @@ module.exports = class PixelblazeController {
     if (_.isEqual(_.pick(command, keys), _.pick(this.command, keys)))
       return;
     _.assign(this.command, command);
-    this.sendFrame(this.command);
+    this.sendFrame(command);
   }
 
   reload() {
