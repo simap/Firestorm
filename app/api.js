@@ -1,4 +1,5 @@
 const discoveries = require('./discovery').discoveries;
+const archiver = require('archiver');
 const _ = require('lodash');
 
 module.exports = function (app) {
@@ -130,6 +131,53 @@ module.exports = function (app) {
     } catch (err) {
       console.error("unable to clone patterns", err);
       res.status(500).send("unable to clone patterns");
+    }
+  })
+
+  // export binary representations of all patterns on a Pixelblaze as a zip file
+  app.get("/controllers/:sourceId/dump", async function (req, res) {
+    try {
+      let sourceId = String(req.params.sourceId);
+
+      if (!(sourceId)) {
+        res.status(400).send("missing sourceId");
+        return;
+      }
+
+      let source = discoveries[sourceId];
+      if (!(source && source.controller)) {
+        res.status(400).send("unable to find source");
+        return;
+      }
+
+      //reload patterns in case something changed. don't want to work on a stale copy!
+      source.controller.reload();
+
+      //TODO HACK wait for reload to work. it would be better to listen to a refresh event or something
+      await new Promise(resolve => setTimeout(resolve, 250));
+
+      let sourceKeys = _.map(source.controller.props.programList, "id");
+
+      //set up zip file to assemble and download
+      let archive = archiver('zip');
+      let rootDir = source.controller.props.name || "Pixelblaze_" + sourceId;
+      res.attachment(rootDir + '.zip');
+      archive.pipe(res);
+
+      //load each program one at a time and append into the zip file. good old
+      //for loop works better than a forEach for await
+      for (let i = 0; i < sourceKeys.length; i++) {
+        let programId = sourceKeys[i];
+        let programData = await source.controller.getProgramBinary(programId);
+        archive.append(programData, { name: programId});
+        let controlsData = await source.controller.getProgramBinary(programId, ".c");
+        archive.append(controlsData, { name: programId + ".c"});
+      }
+      archive.finalize();
+
+    } catch (err) {
+      console.error("unable to dump patterns", err);
+      res.status(500).send("unable to dump patterns");
     }
   })
 

@@ -17,7 +17,8 @@ class App extends Component {
       patternSequenceIndex: 0,
       cloneSource: null,
       cloneDest: {},
-      cloneInProgress: false
+      cloneInProgress: false,
+      showDevControls: false
     }
     this.poll = this.poll.bind(this);
 
@@ -63,6 +64,7 @@ class App extends Component {
 
   componentDidMount() {
     this.poll();
+    document.addEventListener("keydown", this._handleKeyDown);
   }
 
   componentWillUnmount() {
@@ -181,6 +183,15 @@ class App extends Component {
     });
   }
 
+  _handleKeyDown = (event) => {
+   if(event.key === '/') {
+      // Toggle developer controls
+     this.setState({
+       showDevControls: !this.state.showDevControls
+     });
+   }
+ }
+
   async _startNewSequence(startingPattern) {
     clearInterval(this._sequenceInterval)
     this.setState({
@@ -286,7 +297,8 @@ class App extends Component {
                 <ul className="list-group col-lg-8" id="list">
                   {this.state.discoveries.map(d =>
                       <li className="list-group-item">
-                        <a className="btn btn-secondary float-right" onClick={(event)=>this.openCloneDialog(event, d.id)}>Clone to</a>
+                        <a className={"btn btn-secondary float-right " + (!this.state.showDevControls && "d-none")} href={"controllers/" + d.id + "/dump"} download>Dump</a>
+                        <a className="btn btn-secondary float-right" onClick={(event)=>this.openCloneDialog(event, d.id)}>Clone</a>
                         <a className="btn btn-primary float-right" href={"http://" + d.address} target="_blank">Open</a>
                         <h5>{d.name || "Pixelblaze_" + d.id} v{d.ver} @ {d.address}</h5>
                       </li>
