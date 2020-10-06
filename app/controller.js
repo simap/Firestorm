@@ -169,9 +169,10 @@ module.exports = class PixelblazeController {
     this.sendFrame({getConfig: true, listPrograms: true});
   }
 
-  async getProgramBinary(programId) {
-    console.log("getting program " + programId + " from " + this.props.address);
-    var resp = await fetch('http://' + this.props.address + "/p/" + programId, {
+  async getProgramBinary(programId, extension = "") {
+    let extensionDesc = (extension == ".c") ? " controls" : ""
+    console.log("getting program" + programId + extensionDesc + " from " + this.props.address);
+    var resp = await fetch('http://' + this.props.address + "/p/" + programId + extension, {
       responseType: 'blob',
     });
     return await resp.body;
