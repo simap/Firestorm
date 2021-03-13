@@ -44,9 +44,9 @@ class PatternView extends Component {
     }
 
     return (
-      <div className="row no-gutters list-group-item py-0 pr-3">
+      <div className="row no-gutters list-group-item py-0 pr-0">
         <div className="row align-items-center">
-          <div className="col p-0">
+          <div className="col-md-8 p-0">
             <button 
               className="btn btn-link w-100 p-0 text-left"
               onClick={this._handlePatternClick}>
@@ -58,15 +58,17 @@ class PatternView extends Component {
               </div>
             </button>
           </div>
-          <div className="col-2 p-3">
-            {renderDurationElement()}
+          <div className="col-md-4 align-items-center row py-0 pr-0">
+            <div className="col-8 p-3">
+              {renderDurationElement()}
+            </div>
+            <button
+              className="col-4 btn-dark btn-playlist-add"
+              disabled={status === "running"}
+              onClick={this._handleAddClick}>
+              {renderStatusElement()}
+            </button>
           </div>
-          <button
-            className="col-1 btn-dark btn-playlist-add"
-            disabled={status === "running"}
-            onClick={this._handleAddClick}>
-            {renderStatusElement()}
-          </button>
         </div>
       </div>
     )
