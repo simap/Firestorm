@@ -27,10 +27,14 @@
   padding: 2rem 0rem;
 }
 
-.btn-playlist-add:focus, .btn-playlist-add:active:focus, .btn-playlist-add.active:focus {
+/* !importants below override many combos of .active and :active */
+.btn-playlist-add {
   outline: none ! important;
-  outline-style: none;
-  box-shadow: none;
+  outline-style: none ! important;
+  box-shadow: none ! important;
+}
+
+.btn-playlist-add:not(:hover) {
   background-color: unset;
 }
 
