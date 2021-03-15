@@ -22,6 +22,22 @@
   font-size: large;
 }
 
+.btn-playlist-add {
+  border: 0;
+  padding: 2rem 0rem;
+}
+
+/* !importants below override many combos of .active and :active */
+.btn-playlist-add {
+  outline: none ! important;
+  outline-style: none ! important;
+  box-shadow: none ! important;
+}
+
+.btn-playlist-add:not(:hover) {
+  background-color: unset;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
