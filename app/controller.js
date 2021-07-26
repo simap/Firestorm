@@ -37,7 +37,7 @@ module.exports = class PixelblazeController {
     this.command = _.clone(command || {}); //commands to send
     this.props.programList = [];
     this.partialList = [];
-    this.lastSeen = 0;
+    this.lastSeen = new Date().getTime();
 
     this.connect = this.connect.bind(this);
     this.handleConnect = this.handleConnect.bind(this);
@@ -53,8 +53,10 @@ module.exports = class PixelblazeController {
 
   stop() {
     try {
-      if (this.ws)
+      if (this.ws) {
+        console.log("stopping " + this.props.address);
         this.ws.terminate();
+      }
     } catch (err) {
       // dont care!
     }
@@ -138,9 +140,9 @@ module.exports = class PixelblazeController {
     if (!isDisconnected)
       this.ws.ping();
   }
-  isAlive() {
+  isAlive(timeoutMs) {
     let now = new Date().getTime();
-    return now - this.lastSeen < 5000 && this.ws.readyState !== this.ws.CLOSED;
+    return now - this.lastSeen < timeoutMs && this.ws && this.ws.readyState !== this.ws.CLOSED;
   }
   handlePong() {
     this.lastSeen = new Date().getTime();

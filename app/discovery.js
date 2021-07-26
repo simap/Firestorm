@@ -1,7 +1,7 @@
 const PixelblazeController = require('./controller');
 const _ = require('lodash');
 
-let timeoutMs = 5000;
+let timeoutMs = 15000;
 let expireMs = 300000; //5 minutes
 
 var discoveries = {};
@@ -15,8 +15,8 @@ setInterval(() => {
       console.log("expired", d.address);
       d.controller.stop();
       delete discoveries[id];
-    } else if (!d.controller.isAlive()) {
-      // console.log("ws not alive", d.address);
+    } else if (!d.controller.isAlive(timeoutMs)) {
+      console.log("ws not alive", d.address);
       d.controller.start(); //try kicking it
     }
   });
