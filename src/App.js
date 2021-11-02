@@ -335,7 +335,7 @@ class App extends Component {
                     const dName = d.name || "Pixelblaze_" + d.id
                     return (
                       <li className="list-group-item" key={dName}>
-                        <button className={"btn btn-secondary float-right " + (!this.state.showDevControls && "d-none")} href={"controllers/" + d.id + "/dump"} download>Dump</button>
+                        <a className={"btn btn-secondary float-right " + (!this.state.showDevControls && "d-none")} href={"controllers/" + d.id + "/dump"} download>Dump</a>
                         <button className="btn btn-secondary float-right" onClick={(event)=>this.openCloneDialog(event, d.id)}>Clone</button>
                         <a className="btn btn-primary float-right" href={"http://" + d.address} target="_blank" rel="noopener noreferrer">Open</a>
                         <h5>{dName} v{d.ver} @ {d.address}</h5>
