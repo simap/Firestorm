@@ -1,6 +1,19 @@
 const WebSocket = require('ws');
 const _ = require('lodash');
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
+
+// this is such a dirty hack. why nodejs, why!?!
+// new version of node-fetch is ESM only.
+// https://redfin.engineering/node-modules-at-war-why-commonjs-and-es-modules-cant-get-along-9617135eeca1
+let fetch = () => Promise.reject();
+(async () => {
+  try {
+    let nodefetch = await import('node-fetch');
+    fetch = nodefetch.default;
+  }
+})();
+
+
 const FormData = require('form-data');
 
 const PacketType = {
@@ -173,11 +186,17 @@ module.exports = class PixelblazeController {
 
   async getProgramBinary(programId, extension = "") {
     let extensionDesc = (extension == ".c") ? " controls" : ""
-    console.log("getting program" + programId + extensionDesc + " from " + this.props.address);
+    console.log("getting program " + programId + extensionDesc + " from " + this.props.address);
     var resp = await fetch('http://' + this.props.address + "/p/" + programId + extension, {
-      responseType: 'blob',
+      highWaterMark: 1024 * 1024
     });
-    return await resp.body;
+
+    if (resp.ok || resp.status === 404)
+      return await resp.buffer();
+    else {
+      console.log("Got unexpected response ${resp.status} ${resp.statusText}");
+      throw new Error(`Unexpected response ${resp.statusText}`);
+    }
   }
 
   async putProgramBinary(programId, binary) {
@@ -202,7 +221,7 @@ module.exports = class PixelblazeController {
   async deleteProgram(programId) {
     console.log("deleting " + programId + " from " + this.props.address);
     var resp = await fetch('http://' + this.props.address + "/delete?path=/p/" + programId);
-    return await resp;
+    return resp.ok;
   }
 
   sendFrame(o) {

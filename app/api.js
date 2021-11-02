@@ -2,6 +2,22 @@ const discoveries = require('./discovery').discoveries;
 const archiver = require('archiver');
 const _ = require('lodash');
 
+async function asyncRetryHelper(fn, retries, initialWait, errorWait) {
+  let err
+  for (let tries = 1 + retries; tries > 0; tries--) {
+    try {
+      await new Promise(resolve => setTimeout(resolve, initialWait));
+      return await fn()
+    } catch (e) {
+      err = e; //save last error
+      //wait a bit if we will try again
+      if (tries > 1)
+        await new Promise(resolve => setTimeout(resolve, errorWait));
+    }
+  }
+  throw err
+}
+
 module.exports = function (app) {
 
   app.get("/discover", function (req, res) {
@@ -158,21 +174,42 @@ module.exports = function (app) {
 
       let sourceKeys = _.map(source.controller.props.programList, "id");
 
+
+      //load each program one at a time and append to list of files. good old
+      //for loop works better than a forEach for await
+      let files = [];
+      for (let i = 0; i < sourceKeys.length; i++) {
+        let programId = sourceKeys[i];
+        let programData = await asyncRetryHelper(
+            () => source.controller.getProgramBinary(programId),
+            5, 50,100)
+        files.push({
+          data: programData,
+          name: programId
+        })
+        let controlsData = await asyncRetryHelper(
+            () => source.controller.getProgramBinary(programId, ".c"),
+            5, 50,100)
+        if (controlsData.size > 0) {
+          files.push({
+            data: controlsData,
+            name: programId + ".c"
+          })
+        }
+      }
+
+      //if we get here, all data has been successfully loaded
+
       //set up zip file to assemble and download
       let archive = archiver('zip');
       let rootDir = source.controller.props.name || "Pixelblaze_" + sourceId;
       res.attachment(rootDir + '.zip');
       archive.pipe(res);
 
-      //load each program one at a time and append into the zip file. good old
-      //for loop works better than a forEach for await
-      for (let i = 0; i < sourceKeys.length; i++) {
-        let programId = sourceKeys[i];
-        let programData = await source.controller.getProgramBinary(programId);
-        archive.append(programData, { name: programId});
-        let controlsData = await source.controller.getProgramBinary(programId, ".c");
-        archive.append(controlsData, { name: programId + ".c"});
-      }
+      files.forEach(({data, name}) => {
+        archive.append(data, {name});
+      })
+
       archive.finalize();
 
     } catch (err) {
