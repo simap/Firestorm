@@ -10,6 +10,8 @@ let fetch = () => Promise.reject();
   try {
     let nodefetch = await import('node-fetch');
     fetch = nodefetch.default;
+  } catch (err) {
+    console.log("Can't load node-fetch " + err)
   }
 })();
 
