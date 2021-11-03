@@ -223,7 +223,7 @@ module.exports = class PixelblazeController {
   async deleteProgram(programId) {
     console.log("deleting " + programId + " from " + this.props.address);
     var resp = await fetch('http://' + this.props.address + "/delete?path=/p/" + programId);
-    return resp.ok;
+    return resp.ok || resp.status === 404;
   }
 
   sendFrame(o) {
