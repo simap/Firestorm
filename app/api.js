@@ -116,7 +116,7 @@ module.exports = function (app) {
           //do this one at a time to avoid flooding PB with too many simultaneous requests
           //good old for loop works better than a forEach for await
           for (let i = 0; i < keysToRemove.length; i++) {
-            await controller.deleteProgram(keysToRemove[i]);
+            await asyncRetryHelper(() => controller.deleteProgram(keysToRemove[i]), 5, 50, 100);
           }
         }
       }));
@@ -127,12 +127,12 @@ module.exports = function (app) {
       //good old for loop works better than a forEach for await
       for (let i = 0; i < sourceKeys.length; i++) {
         let programId = sourceKeys[i];
-        let data = await source.controller.getProgramBinary(programId);
+        let data = await asyncRetryHelper(() => source.controller.getProgramBinary(programId), 5, 50, 100);
         await Promise.all(to.map(async id => {
           id = String(id);
           let controller = discoveries[id] && discoveries[id].controller;
           if (controller) {
-            return controller.putProgramBinary(programId, data);
+            return asyncRetryHelper(() => controller.putProgramBinary(programId, data), 5, 50, 100);
           }
         }));
       }
