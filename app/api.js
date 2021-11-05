@@ -190,7 +190,7 @@ module.exports = function (app) {
         let controlsData = await asyncRetryHelper(
             () => source.controller.getProgramBinary(programId, ".c"),
             5, 50,100)
-        if (controlsData.size > 0) {
+        if (controlsData.length > 0) {
           files.push({
             data: controlsData,
             name: programId + ".c"
