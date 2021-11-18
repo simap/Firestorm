@@ -44,10 +44,11 @@ class App extends Component {
 
       let groupByName = {};
       _.each(discoveries, d => {
+        d.name = d.name || "Pixelblaze_" + d.id // set name if missing
         _.each(d.programList, p => {
           let pb = {
             id: d.id,
-            name: d.name || 'Pixelblaze_' + d.id
+            name: d.name
           };
           if (groupByName[p.name]) {
             groupByName[p.name].push(pb);
@@ -62,6 +63,7 @@ class App extends Component {
           .value();
       // console.log("groups", groups);
 
+      discoveries = _.sortBy(discoveries, "name")
       this.setState({discoveries, groups})
     } catch (err) {
       this.setState({err})
@@ -278,7 +280,7 @@ class App extends Component {
                         <div className="form-group form-check">
                           <label className="form-check-label">
                             <input type="checkbox" className="form-check-input" checked={!!this.state.cloneDest[d.id]} onChange={(event) => this.setCloneDest(d.id, event.target.checked)}/>
-                            {d.name || "Pixelblaze_" + d.id} v{d.ver} @ {d.address}</label>
+                            {d.name} v{d.ver} @ {d.address}</label>
                         </div>
                     )}
                   </form>
@@ -332,7 +334,7 @@ class App extends Component {
                 </h3>
                 <ul className="list-group col-lg-8" id="list">
                   {this.state.discoveries.map(d => {
-                    const dName = d.name || "Pixelblaze_" + d.id
+                    const dName = d.name
                     return (
                       <li className="list-group-item" key={dName}>
                         <a className={"btn btn-secondary float-right " + (!this.state.showDevControls && "d-none")} href={"controllers/" + d.id + "/dump"} download>Dump</a>
