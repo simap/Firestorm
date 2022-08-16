@@ -112,7 +112,7 @@ module.exports = class PixelblazeController {
       try {
         _.assign(this.props, _.pick(JSON.parse(msg), PROPFIELDS));
       } catch (err) {
-        console.err("Problem parsing packet", err);
+        console.error("Problem parsing packet", err);
       }
     } else {
       var buf = new Uint8Array(msg);
