@@ -11,6 +11,21 @@ Firestorm runs as a web server. When Firestorm is running, it detects all Pixelb
 Installation
 ==========
 
+Docker Usage
+==========
+
+To run this project in a docker environment, ensure you have docker installed wherever you want to run this, then run:
+
+```bash
+docker compose build
+docker compose up
+```
+
+You can then view the UI on your machine at [http://0.0.0.0:8080/](http://0.0.0.0:8080/).
+
+Running Locally
+==========
+
 Installing Firestorm involves cloning this project and running it from the command line. If you haven't already, install an LTS version of [Node.js](https://nodejs.org/en/download/package-manager/) and [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/).
 
 ```
