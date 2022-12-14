@@ -13,15 +13,17 @@ discovery.start({
 
 app.use(bodyParser.json());
 
-const {PORT = 80} = process.env
+const DEFAULT_PORT = 80
+const port = process.env.PORT || DEFAULT_PORT
 
 require("./app/api")(app);
 
 app.use(compression())
 app.use(express.static('build'));
 
-console.log('listening on %s', PORT)
-app.listen(PORT)
+app.listen(port, function() {
+  console.log('Firestorm up and listenting on %s', port)
+});
 
 
 const r = repl.start('> ');
@@ -31,4 +33,3 @@ r.on('exit', () => {
 });
 r.context.discoveries = discovery.discoveries;
 r.context.reqire = require;
-

@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  firestorm:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: firestorm
+    tty: true
+    #restart: unless-stopped
+    environment:
+      - DEBUG=express:*
+    ports:
+      - "8080:80/tcp"
+      - "1889:1889/udp"
+    volumes:
+      - .:/app
+    command: "yarn server"
