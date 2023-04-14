@@ -11,7 +11,7 @@ class App extends Component {
     super(props);
     this.state = {
       discoveries: [],
-      groups: [],               // Currently duscovered patterns and their controllers
+      groups: [],               // Currently discovered patterns and their controllers
       runningPatternName: null,
       playlist: [],             // Browser-persisted single playlist singleton
       playlistIndex: 0,
@@ -19,9 +19,10 @@ class App extends Component {
       cloneSource: null,
       cloneDest: {},
       cloneInProgress: false,
-      showDevControls: false
+      showDevControls: false,
+      showCurrentPlaylist: false,
     }
-    // The playlist is the only thing currently persisted and it is per-broswer
+    // The playlist is the only thing currently persisted, and it is per-browser
     this.state.playlist = JSON.parse(localStorage.getItem(PLAYLIST_KEY)) || []
 
     if (this.state.playlist.length) {
@@ -33,6 +34,7 @@ class App extends Component {
     this._playlistInterval = null
 
     this.cloneDialogRef = React.createRef();
+    this.playlistDialogRef = React.createRef();
   }
 
   async poll() {
@@ -207,7 +209,20 @@ class App extends Component {
       this.cloneDialogRef.current && this.cloneDialogRef.current.scrollIntoView(true);
     }, 100)
   }
-
+  openPlaylistDialog = async (event) => {
+    event.preventDefault();
+    this.setState({
+      showCurrentPlaylist: true
+    });
+    setTimeout(() => {
+      this.playlistDialogRef.current && this.playlistDialogRef.current.scrollIntoView(true);
+    }, 100)
+    if( this.state.showCurrentPlaylist === true ) {
+      this.setState({
+        showCurrentPlaylist: false
+      });
+    }
+  }
   closeCloneDialog = async (event) => {
     event.preventDefault();
     this.setState({
@@ -260,7 +275,6 @@ class App extends Component {
     }
   }
 
-
   render() {
     let cloneDialog = null;
     if (this.state.cloneSource) {
@@ -309,6 +323,46 @@ class App extends Component {
           </div>
       )
     }
+    let playlistDialog = null
+    if (this.state.showCurrentPlaylist) {
+      playlistDialog = (
+        <div className="row" ref={this.playlistDialogRef}>
+          <div className="col-lg-8">
+            <div className="card" >
+              <div className="card-body">
+                <h5 className="card-title">Current Playlist</h5>
+                <div className="row no-gutters align-items-center">
+                  <div className="col-md-7 p-0">
+                    <p>Pattern</p>
+                  </div>
+                  <div className="col-md-1 align-items-center row py-0 pr-0 text-left">
+                    <p>Duration(seconds)</p>
+                  </div>
+                </div>
+                {(this.state.playlist).map( pattern =>
+                  <>
+                    <div className="row no-gutters list-group-item py-0 pr-0">
+                      <div className="row align-items-center">
+                        <div className="col-md-6 p-0">
+                          <div className="p-2 m-auto">
+                            {pattern.name}
+                          </div>
+                        </div>
+                        <div className="col-md-1 py-0 pr-0 row no-gutters text-left">
+                          <div className="p-2 m-auto">
+                            {pattern.duration}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
 
     return (
         <div className="container">
@@ -350,8 +404,15 @@ class App extends Component {
             <hr/>
 
             {cloneDialog}
-
-            <h3>Patterns</h3>
+            {playlistDialog}
+            <h3>
+              Patterns
+              <button
+                  className="btn btn-secondary float-right text-left"
+                  onClick={(e) => this.openPlaylistDialog(e)}>
+                View Current Playlist
+              </button>
+            </h3>
             <div className="list-group">
               {this.state.groups.map((pattern) => {
                 const getStatus = () => {
@@ -363,7 +424,7 @@ class App extends Component {
                     return 'available'
                   }
                 }
-                const getDuraton = () => {
+                const getDuration = () => {
                   const playlistIndex = _(this.state.playlist).findIndex(['name', pattern.name])
                   if (playlistIndex === -1) return ''
                   return this.state.playlist[playlistIndex].duration
@@ -378,7 +439,7 @@ class App extends Component {
                     handleAddClick={this._handleAddClick}
                     status={getStatus()}
                     showDurations={(this.state.playlist.length > 1)}
-                    duration={getDuraton()}
+                    duration={getDuration()}
                   />
                 )
               })}
