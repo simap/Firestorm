@@ -103,12 +103,12 @@ module.exports = class PixelblazeController {
     this.reconectTimeout = setTimeout(this.connect, 1000);
   }
 
-  handleMessage(msg) {
+  handleMessage(msg, isBinary) {
     this.lastSeen = new Date().getTime();
     // console.log("data from " + this.props.id + " at " + this.props.address, typeof msg, msg);
 
     let props = this.props;
-    if (typeof msg === "string") {
+    if (!isBinary) {
       try {
         _.assign(this.props, _.pick(JSON.parse(msg), PROPFIELDS));
       } catch (err) {

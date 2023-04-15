@@ -9,12 +9,15 @@
     "compression": "^1.7.4",
     "express": "^4.17.1",
     "form-data": "^3.0.0",
+    "knex": "^2.4.2",
     "lodash": "^4.17.21",
     "node-fetch": "^3.0.0",
     "react": "^16.4.2",
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
-    "ws": "^7.4.6"
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.0",
+    "ws": "^8.13.0"
   },
   "scripts": {
     "start": "react-scripts start",
