@@ -339,23 +339,21 @@ class App extends Component {
                     <p>Duration(seconds)</p>
                   </div>
                 </div>
-                {(this.state.playlist).map( pattern =>
-                  <>
-                    <div className="row no-gutters list-group-item py-0 pr-0">
-                      <div className="row align-items-center">
-                        <div className="col-md-6 p-0">
-                          <div className="p-2 m-auto">
-                            {pattern.name}
-                          </div>
+                {(this.state.playlist).map( (pattern, index) =>
+                  <div className="row no-gutters list-group-item py-0 pr-0" key={index}>
+                    <div className="row align-items-center">
+                      <div className="col-md-6 p-0">
+                        <div className="p-2 m-auto">
+                          {pattern.name}
                         </div>
-                        <div className="col-md-1 py-0 pr-0 row no-gutters text-left">
-                          <div className="p-2 m-auto">
-                            {pattern.duration}
-                          </div>
+                      </div>
+                      <div className="col-md-1 py-0 pr-0 row no-gutters text-left">
+                        <div className="p-2 m-auto">
+                          {pattern.duration}
                         </div>
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
