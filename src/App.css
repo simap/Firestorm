@@ -27,6 +27,10 @@
   padding: 2rem 0rem;
 }
 
+.btn-playlist-bulk {
+  margin-left: 10px;
+}
+
 /* !importants below override many combos of .active and :active */
 .btn-playlist-add {
   outline: none ! important;
