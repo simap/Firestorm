@@ -5,12 +5,14 @@ import _ from 'lodash';
 import PatternView from './PatternView'
 
 const PLAYLIST_KEY = "firestorm:playlists:0"
+const BRIGHTNESS_KEY = "firestorm:brightness:0"
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       discoveries: [],
+      brightness: null,
       groups: [],               // Currently duscovered patterns and their controllers
       runningPatternName: null,
       playlist: [],             // Browser-persisted single playlist singleton
@@ -21,8 +23,9 @@ class App extends Component {
       cloneInProgress: false,
       showDevControls: false
     }
-    // The playlist is the only thing currently persisted and it is per-broswer
     this.state.playlist = JSON.parse(localStorage.getItem(PLAYLIST_KEY)) || []
+    this.state.brightness = localStorage.getItem(BRIGHTNESS_KEY) || 1
+
 
     if (this.state.playlist.length) {
       this.state.playlistDefaultInterval = _(this.state.playlist).last().duration
@@ -109,6 +112,32 @@ class App extends Component {
       })
     })
   }
+  delayedSaveBrightness = _.debounce(async (resolve, payload) => {
+    resolve(fetch('./command', payload));
+    this.storeBrightness();
+  }, 1000)
+
+  changeBrightness = (event) => {
+    event.preventDefault()
+    return new Promise((resolve) => {
+      this.setState({brightness: event.target.value}, () => {
+        const payload = {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            command: {
+              brightness: parseFloat(this.state.brightness)
+            },
+            ids: _.map(this.state.discoveries, 'id')
+          })
+        }
+        this.delayedSaveBrightness(resolve, payload)
+      })
+    })
+  }
 
   _handlePatternClick = async (event, pattern) => {
     event.preventDefault()
@@ -118,7 +147,9 @@ class App extends Component {
   storePlaylist = () => {
     localStorage.setItem(PLAYLIST_KEY, JSON.stringify(this.state.playlist))
   }
-
+  storeBrightness = () => {
+    localStorage.setItem(BRIGHTNESS_KEY, this.state.brightness)
+  }
   _handleDurationChange = async (event, pattern, newDuration) => {
     event.preventDefault()
     const newValidDuration = parseFloat(newDuration) || 0
@@ -329,9 +360,27 @@ class App extends Component {
             <div className="row">
               <div className="col-lg-12">
 
-                <h3>Controllers
-                  <button className="btn btn-primary " onClick={this.handleReload} style={{marginLeft:"1em"}}>↻</button>
-                </h3>
+                <div className="row no-gutters">
+                  <h3>Controllers
+                    <button className="btn btn-primary " onClick={this.handleReload} style={{marginLeft:"1em"}}>↻</button>
+                  </h3>
+                  <div className="navbrightness no-learning-ui row no-gutters pull-right">
+                    <label>
+                      <span role="img" aria-label="light bulb emoji for pixelblaze brightness">💡</span>
+                      <input
+                        id="brightness"
+                        type="range"
+                        className="form-control"
+                        onChange={this.changeBrightness}
+                        min="0"
+                        max="1"
+                        step=".005"
+                        title={`Brightness ${Math.round(this.state.brightness * 100)  }%`}
+                        value={this.state.brightness}
+                      />
+                    </label>
+                  </div>
+                </div>
                 <ul className="list-group col-lg-8" id="list">
                   {this.state.discoveries.map(d => {
                     const dName = d.name

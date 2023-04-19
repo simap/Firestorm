@@ -42,3 +42,25 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.navbrightness {
+  white-space: nowrap;
+}
+
+.navbrightness label {
+  font-size: 170%;
+  margin: 4px 6px;
+  float: left;
+}
+
+#brightness {
+  padding: initial;
+}
+
+.navbrightness input {
+  width: 10em;
+  display: inline-block;
+  border: none;
+  height: 1em;
+  margin-right: 1em;
+}
