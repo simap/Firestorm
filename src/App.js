@@ -260,6 +260,34 @@ class App extends Component {
     }
   }
 
+  downloadPatternArchive = async (event, deviceId) => {
+    event.preventDefault()
+    await fetch(`./controllers/${deviceId}/dump`)
+      .then(async res => {
+        let filename = ''
+        for (const header of res.headers) {
+          if (header[1].includes('filename')) {
+            const dispositionHeader = header[1]
+            // ignoring warning for `_`
+            // eslint-disable-next-line no-unused-vars
+            const [_, rawFilename] = dispositionHeader.split('=')
+            // removing double quotes
+            filename = rawFilename.replace(/^"(.+(?="$))"$/, '$1')
+          }
+        }
+        const url = URL.createObjectURL(await res.blob())
+        const element = document.createElement("a");
+        element.setAttribute("href", url);
+        element.setAttribute("download", filename);
+        element.style.display = "none";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        URL.revokeObjectURL(url);
+      })
+      .catch(err => console.error(err));
+  }
+
 
   render() {
     let cloneDialog = null;
@@ -337,9 +365,11 @@ class App extends Component {
                     const dName = d.name
                     return (
                       <li className="list-group-item" key={dName}>
-                        <a className={"btn btn-secondary float-right " + (!this.state.showDevControls && "d-none")} href={"controllers/" + d.id + "/dump"} download>Dump</a>
-                        <button className="btn btn-secondary float-right" onClick={(event)=>this.openCloneDialog(event, d.id)}>Clone</button>
-                        <a className="btn btn-primary float-right" href={"http://" + d.address} target="_blank" rel="noopener noreferrer">Open</a>
+                        <button className={"clone-btn btn btn-secondary float-right " + (!this.state.showDevControls && "d-none")}
+                            onClick={async (event) => await this.downloadPatternArchive(event, d.id)}>
+                          Dump</button>
+                        <button className="clone-btn btn btn-secondary float-right" onClick={(event)=>this.openCloneDialog(event, d.id)}>Clone</button>
+                        <a className="clone-btn btn btn-primary float-right" href={"http://" + d.address} target="_blank" rel="noopener noreferrer">Open</a>
                         <h5>{dName} v{d.ver} @ {d.address}</h5>
                       </li>
                     )
